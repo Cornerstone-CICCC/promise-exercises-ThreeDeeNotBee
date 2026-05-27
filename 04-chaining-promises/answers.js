@@ -1,43 +1,55 @@
 /**
- * 
+ *
  * EXERCISE 1
- * 
- * @param {Promise} promise 
- * @param {function} asyncTransformer 
+ *
+ * @param {Promise} promise
+ * @param {function} asyncTransformer
  */
-function flatMapPromise(promise, asyncTransformer){
+function flatMapPromise(promise, asyncTransformer) {
   return new Promise((resolve, reject) => {
     promise
-      .then(/* IMPLEMENT ME! */);
-  });
+      .then((value) => {
+        asyncTransformer(value).then(resolve).catch(reject)
+      })
+      .catch(reject)
+  })
 }
 
 /**
- * 
+ *
  * EXERCISE 2
- * 
- * @param {Promise} firstPromise 
- * @param {function} slowAsyncProcess 
+ *
+ * @param {Promise} firstPromise
+ * @param {function} slowAsyncProcess
  */
-function chainTwoAsyncProcesses(firstPromise, slowAsyncProcess){
-  return firstPromise.then(/* IMPLEMENT ME! */);
+function chainTwoAsyncProcesses(firstPromise, slowAsyncProcess) {
+  return firstPromise.then((resolvedValue) => {
+    return slowAsyncProcess(resolvedValue)
+  })
 }
 
 /**
- * 
+ *
  * EXERCISE 3
- * 
- * @param {function} getUserById 
- * @param {function} getOrganizationById 
+ *
+ * @param {function} getUserById
+ * @param {function} getOrganizationById
  */
-function makeGetUserByIdWithOrganization(getUserById, getOrganizationById){
-  return function getUserByIdWithOrganization(userId){
-    /* IMPLEMENT ME! */
-  };
+function makeGetUserByIdWithOrganization(getUserById, getOrganizationById) {
+  return async function getUserByIdWithOrganization(userId) {
+    const user = await getUserById(userId)
+    if (!user) {
+      return undefined
+    }
+    const organization = await getOrganizationById(user.organizationId)
+    return {
+      ...user,
+      organization: organization,
+    }
+  }
 }
-
 module.exports = {
   flatMapPromise,
   chainTwoAsyncProcesses,
   makeGetUserByIdWithOrganization,
-};
+}
